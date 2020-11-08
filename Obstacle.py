@@ -1,5 +1,3 @@
-from cgi import parse
-
 from pygame.sprite import Sprite
 import pygame
 import random

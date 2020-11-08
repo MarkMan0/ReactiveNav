@@ -9,6 +9,7 @@ class Settings:
             data = yaml.load(f, Loader=yaml.FullLoader)
         self.bg_color = data['bg_color']
         self.screen_sz = data['screen_sz']
+        self.car_settings = data['car']
 
         with open(path_scenario) as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
