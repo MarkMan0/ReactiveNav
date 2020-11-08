@@ -1,0 +1,3 @@
+screen_sz: [600, 800]
+# bg_color: RGB
+bg_color: [230, 230, 230]
