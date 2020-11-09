@@ -9,7 +9,8 @@ class Obstacle(Sprite):
     def __init__(self, game, x=-1, y=-1, sz=100):
         super().__init__()
         self.image = pygame.Surface((sz, sz), pygame.SRCALPHA)
-        pygame.draw.circle(self.image, (255, 255, 255), (int(sz/2), int(sz/2)), int(sz/2))
+        # pygame.draw.circle(self.image, (255, 255, 255), (int(sz/2), int(sz/2)), int(sz/2))
+        pygame.draw.rect(self.image, (255, 255, 255), pygame.Rect(0, 0, sz, sz))
         self.rect = self.image.get_rect()
 
         if x != -1 and y != -1:

@@ -23,7 +23,7 @@ class Car(Sprite):
 
         self.ang_spd = 0.0
 
-        self.lastX, self.lastY = self.rect.center
+        self.x, self.y = self.rect.center
 
     def update(self, *args):
 
@@ -34,10 +34,10 @@ class Car(Sprite):
         x_spd = math.cos(math.radians(self.orientation + 90)) * 0.1
         y_spd = -math.sin(math.radians(self.orientation + 90)) * 0.1
 
-        self.lastX += x_spd
-        self.lastY += y_spd
+        self.x += x_spd
+        self.y += y_spd
 
-        self.rect.center = (int(self.lastX), int(self.lastY))
+        self.rect.center = (int(self.x), int(self.y))
 
     def render(self):
         self.screen.blit(self.image, self.rect)
