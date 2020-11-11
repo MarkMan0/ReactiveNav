@@ -3,4 +3,5 @@ screen_sz: [600, 800]
 bg_color: [230, 230, 230]
 car:
   size: 15
-  speed: 0.3
+  speed: 0.05
+cam_view_sz: 100

@@ -7,4 +7,5 @@ if __name__ == '__main__':
     while sim.running:
         sim.tick()
         cnt += 1
+        sim.camera.get_cam_view()
     print(f"Goal reached: {sim.result}, score: {cnt}")

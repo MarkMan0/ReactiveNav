@@ -20,6 +20,7 @@ class Simulation:
         self._goal_pos = self.settings.goal_pos
         self.car = None
         self.result = False     # False - collision, True - goal
+        self.camera = None
 
     def setup(self):
         pygame.init()
@@ -28,17 +29,20 @@ class Simulation:
         self.obstacles = Obstacle.ObstacleLoader(self, self._scenario).create_obstacles()
         self.car = Car.Car(self)
         self._create_walls()
+        self.camera = Car.Camera(self)
 
     def on_render(self):
         self.obstacles.update()
         self.walls.update()
         self.car.update()
+        self.camera.update_pos(int(self.car.x), int(self.car.y), self.car.orientation)
 
         self._display.fill((0, 0, 0))
         self.obstacles.draw(self._display)
         self.walls.draw(self._display)
         self._blit_start_goal()
         self.car.render()
+        self.camera.render()
 
         pygame.display.flip()
 
