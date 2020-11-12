@@ -68,13 +68,14 @@ class Camera(Sprite):
         self.line_w = 3
         sz = self.view_sz + 2*self.line_w
         self.orig_img = pygame.Surface((sz, sz), pygame.SRCALPHA)
-        pygame.draw.rect(self.orig_img, (255, 255, 255), pygame.Rect(0, 0, sz, sz), self.line_w)
+        pygame.draw.rect(self.orig_img, (255, 0, 0), pygame.Rect(0, 0, sz, sz), self.line_w)
 
         self.image = self.orig_img.copy()
         self.rect = self.image.get_rect()
         self.rect.center = self.settings.start_pos
         self.rotation = 0
         self.cam_view = None
+        self.cam_view_scaled = None
 
     def update_pos(self, x: float, y: float, rot: float) -> None:
         """
@@ -108,15 +109,23 @@ class Camera(Sprite):
         surf = arr2.make_surface()
         arr2.close()
         # rotate surface so car is always pointing in upward direction
-        surf.set_colorkey(pygame.Color(0))
+        surf.set_colorkey(pygame.Color(0))  # transform.rotate crops the image with pixels of this color
         surf = pygame.transform.rotate(surf, -self.rotation)
+        # rotate() changes the size of the surface, crop the middle part
         x, y = surf.get_rect().center
         x_min = int(x - cam_sz)
         y_min = int(y - cam_sz)
+        keep_ratio = 1 - self.settings.cam_settings['discard_ratio']
         w = self.view_sz
-        h = self.view_sz
+        h = int(self.view_sz*keep_ratio)
+        # cropping is done by blitting part of the surface to another surface
         self.cam_view = pygame.Surface((self.view_sz, self.view_sz))
         self.cam_view.blit(surf, (0, 0), (x_min, y_min, w, h))
+        # the image's resolution is too high, need to reduce it for easier processing
+        scaled_sz = self.settings.cam_settings['scaled_sz']
+        self.cam_view_scaled = pygame.transform.scale(self.cam_view, (scaled_sz, int(keep_ratio*scaled_sz)))
+        # in the window we show the scaled image, but make it bigger so it's visible
+        self.cam_view = pygame.transform.scale(self.cam_view_scaled, (w, h))
 
     def render(self, window) -> None:
         rect = self.cam_view.get_rect()
@@ -129,7 +138,7 @@ class Camera(Sprite):
         Returns a numpy array of the camera's view
         :return: numpy.array
         """
-        np_arr = pygame.surfarray.array2d(self.cam_view)
+        np_arr = pygame.surfarray.array2d(self.cam_view_scaled)
         threshold = 16777210  # white
         np_arr[np_arr < threshold] = 0  # ignore non-white pixels
         return np_arr

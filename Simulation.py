@@ -107,9 +107,9 @@ class Simulation:
     def _handle_keydown_events(self, event) -> None:
         """Used to manually drive the car, along with _handle_keyup_events"""
         if event.key == pygame.K_RIGHT:
-            self.car.ang_spd = -0.1
+            self.car.ang_spd = -0.2
         elif event.key == pygame.K_LEFT:
-            self.car.ang_spd = +0.1
+            self.car.ang_spd = +0.2
         elif event.key == pygame.K_q:
             self.running = False
 
