@@ -9,7 +9,7 @@ class Car(Sprite):
     def __init__(self, game):
 
         super().__init__()
-        self.screen = game._display
+        self.screen = game.display
         self.settings = game.settings
         sz = self.settings.car_settings['size']
         self.image = pygame.Surface((sz, sz), pygame.SRCALPHA)
@@ -48,7 +48,7 @@ class Camera(Sprite):
     def __init__(self, game):
 
         super().__init__()
-        self.screen = game._display
+        self.screen = game.display
         self.settings = game.settings
         self.view_sz = self.settings.cam_view_sz
         self.line_w = 3

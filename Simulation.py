@@ -8,9 +8,11 @@ import math
 
 class Simulation:
 
-    def __init__(self, scenario):
+    def __init__(self, scenario, drawing=False):
+        self._drawing = drawing
         self.running = False
-        self._display = None
+        self.window = None
+        self.display = None
         self.obstacles = pygame.sprite.Group()
         self.walls = pygame.sprite.Group()
         self._scenario = scenario
@@ -25,7 +27,9 @@ class Simulation:
     def setup(self):
         pygame.init()
         self.running = True
-        self._display = pygame.display.set_mode(size=self._size)
+        if self._drawing:
+            self.window = pygame.display.set_mode(size=self._size)
+        self.display = pygame.Surface(self._size)
         self.obstacles = Obstacle.ObstacleLoader(self, self._scenario).create_obstacles()
         self.car = Car.Car(self)
         self._create_walls()
@@ -37,14 +41,18 @@ class Simulation:
         self.car.update()
         self.camera.update_pos(int(self.car.x), int(self.car.y), self.car.orientation)
 
-        self._display.fill((0, 0, 0))
-        self.obstacles.draw(self._display)
-        self.walls.draw(self._display)
+        self.display.fill((0, 0, 0))
+        self.obstacles.draw(self.display)
+        self.walls.draw(self.display)
         self._blit_start_goal()
         self.car.render()
         self.camera.render()
 
-        pygame.display.flip()
+        if self._drawing:
+            rect = self.display.get_rect()
+            rect.topleft = (0, 0)
+            self.window.blit(self.display, rect)
+            pygame.display.flip()
 
     def on_event(self, event):
         if event.type == pygame.QUIT:
@@ -74,8 +82,8 @@ class Simulation:
         self.on_render()
 
     def _blit_start_goal(self):
-        pygame.draw.circle(self._display, (0, 255, 0), self._start_pos, 20)
-        pygame.draw.circle(self._display, (0, 0, 255), self._goal_pos, 20)
+        pygame.draw.circle(self.display, (0, 255, 0), self._start_pos, 20)
+        pygame.draw.circle(self.display, (0, 0, 255), self._goal_pos, 20)
 
     def _handle_mouse_down(self, event):
         x, y = event.pos
