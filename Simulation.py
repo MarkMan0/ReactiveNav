@@ -22,7 +22,7 @@ class Simulation:
         self.obstacles = pygame.sprite.Group()
         self.walls = pygame.sprite.Group()
         self._scenario = scenario
-        self.settings = Settings("resources/Settings.yaml", self._scenario)
+        self.settings = Settings(self._scenario)
         self.window_sz = self.settings.window_sz
         self.map_sz = self.settings.map_sz
         self._start_pos = self.settings.start_pos
@@ -122,14 +122,11 @@ class Simulation:
 
     def _create_walls(self) -> None:
         """Creates the walls for the simulation. The walls are positioned, so the camera is never off-screen"""
-        off = max(self.settings.cam_settings['offset_y'], self.settings.cam_settings['offset_y'])
-        off = math.sqrt(2 * off**2)
-        space_x = self.settings.cam_settings['view_sz']/2 + off
-        space_y = self.settings.cam_settings['view_sz']/2 + off
+        space = self.settings.cam_settings['view_sz']/2
 
         w, h = self.map_sz
-        x_min = space_x
-        y_min = space_y
+        x_min = space
+        y_min = space
         wall_w = 5
 
         self.walls.add(Wall.Wall((x_min, y_min), wall_w, h))            # left

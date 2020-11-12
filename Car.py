@@ -86,15 +86,7 @@ class Camera(Sprite):
         """
         self.rotation = rot
         self.rect = self.image.get_rect()
-        x_off = self.settings.cam_settings['offset_x']
-        y_off = self.settings.cam_settings['offset_y']
 
-        r = math.sqrt(x_off**2 + y_off**2)
-
-        dx = r*math.cos(math.radians(-self.rotation-90))
-        dy = r*math.sin(math.radians(self.rotation-90))
-        x += dx
-        y += dy
         self.rect.center = (int(x), int(y))
 
         self._update_cam()
