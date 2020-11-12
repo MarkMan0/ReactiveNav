@@ -113,11 +113,18 @@ class Camera(Sprite):
         arr2 = arr[x_min:x_max, y_min:y_max]
         arr.close()
         # convert to surface
-        self.cam_view = arr2.make_surface()
+        surf = arr2.make_surface()
         arr2.close()
         # rotate surface so car is always pointing in upward direction
-        self.cam_view.set_colorkey(pygame.Color(0))
-        self.cam_view = pygame.transform.rotate(self.cam_view, -self.rotation)
+        surf.set_colorkey(pygame.Color(0))
+        surf = pygame.transform.rotate(surf, -self.rotation)
+        x, y = surf.get_rect().center
+        x_min = int(x - cam_sz)
+        y_min = int(y - cam_sz)
+        w = self.view_sz
+        h = self.view_sz
+        self.cam_view = pygame.Surface((self.view_sz, self.view_sz))
+        self.cam_view.blit(surf, (0, 0), (x_min, y_min, w, h))
 
     def render(self, window) -> None:
         rect = self.cam_view.get_rect()
