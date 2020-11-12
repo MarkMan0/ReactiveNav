@@ -10,7 +10,7 @@ class Settings:
         self.bg_color = data['bg_color']
         self.screen_sz = data['screen_sz']
         self.car_settings = data['car']
-        self.cam_view_sz = data['cam_view_sz']
+        self.cam_settings = data['camera']
 
         with open(path_scenario) as f:
             data = yaml.load(f, Loader=yaml.FullLoader)

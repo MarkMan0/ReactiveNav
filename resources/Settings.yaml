@@ -4,4 +4,7 @@ bg_color: [230, 230, 230]
 car:
   size: 15
   speed: 0.05
-cam_view_sz: 100
+camera:
+  view_sz: 100
+  offset_x: 0
+  offset_y: 30

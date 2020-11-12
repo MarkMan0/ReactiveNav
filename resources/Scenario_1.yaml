@@ -5,5 +5,5 @@ obstacles:
 
 # path: start(x, y), goal(x, y)
 path:
-  start: [100, 700]
+  start: [150, 500]
   goal: [150, 200]

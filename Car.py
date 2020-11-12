@@ -50,7 +50,7 @@ class Camera(Sprite):
         super().__init__()
         self.screen = game.display
         self.settings = game.settings
-        self.view_sz = self.settings.cam_view_sz
+        self.view_sz = self.settings.cam_settings['view_sz']
         self.line_w = 3
         sz = self.view_sz + 2*self.line_w
         self.orig_img = pygame.Surface((sz, sz), pygame.SRCALPHA)
@@ -65,6 +65,16 @@ class Camera(Sprite):
         self.rotation = rot
         self.image = pygame.transform.rotate(self.orig_img, rot)
         self.rect = self.image.get_rect()
+        x_off = self.settings.cam_settings['offset_x']
+        y_off = self.settings.cam_settings['offset_y']
+
+        r = math.sqrt(x_off**2 + y_off**2)
+
+        dx = r*math.cos(math.radians(-self.rotation-90))
+        dy = r*math.sin(math.radians(self.rotation-90))
+        print(f"dx: {dx}, dy: {dy}")
+        x += dx
+        y += dy
         self.rect.center = (x, y)
 
     def render(self):

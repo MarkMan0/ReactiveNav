@@ -104,14 +104,24 @@ class Simulation:
             self.car.ang_spd = 0
 
     def _create_walls(self):
-        w, h = self._size
+
+        off = max(self.settings.cam_settings['offset_y'], self.settings.cam_settings['offset_y'])
+        off = math.sqrt(2 * off**2)
+        space_x = self.settings.cam_settings['view_sz']/2 + off
+        space_y = self.settings.cam_settings['view_sz']/2 + off
+
+        width, height = self._size
+        w = width - 2*space_x
+        h = height - 2*space_y
+        x_min = space_x
+        y_min = space_y
         wall_w = 5
 
         # walls vertical
-        self.walls.add(Wall.Wall(self, 0, 0, wall_w, h))            # left
-        self.walls.add(Wall.Wall(self, 0, 0, w, wall_w))            # top
-        self.walls.add(Wall.Wall(self, w-wall_w, 0, wall_w, h))     # right
-        self.walls.add(Wall.Wall(self, 0, h-wall_w, w, wall_w))     # bottom
+        self.walls.add(Wall.Wall(self, x_min, y_min, wall_w, h))            # left
+        self.walls.add(Wall.Wall(self, x_min, y_min, w, wall_w))            # top
+        self.walls.add(Wall.Wall(self, width-wall_w - space_x, y_min, wall_w, h))     # right
+        self.walls.add(Wall.Wall(self, x_min, height-wall_w-space_y, w, wall_w))     # bottom
 
     def _check_collision(self):
         coll_wall = pygame.sprite.spritecollideany(self.car, self.walls) is not None
