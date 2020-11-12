@@ -16,8 +16,11 @@ class Car(Sprite):
         self.screen = simulation.display
         self.settings = simulation.settings
         sz = self.settings.car_settings['size']
-        self.image = pygame.Surface((sz, sz), pygame.SRCALPHA)
-        pygame.draw.circle(self.image, (255, 0, 0), (int(sz/2), int(sz/2)), int(sz/2))
+        self.orig_img = pygame.Surface((sz, sz), pygame.SRCALPHA)
+        pygame.draw.circle(self.orig_img, (255, 0, 0), (int(sz/2), int(sz/2)), int(sz/2))
+        pygame.draw.circle(self.orig_img, (0, 0, 255), (int(sz/2), int(sz*1/3)), (int(sz/3)))
+
+        self.image = self.orig_img.copy()
         self.rect = self.image.get_rect()
 
         self.rect.center = self.settings.start_pos
@@ -44,6 +47,9 @@ class Car(Sprite):
         self.rect.center = (int(self.x), int(self.y))
 
     def render(self) -> None:
+        self.image = pygame.transform.rotate(self.orig_img, self.orientation)
+        self.rect = self.image.get_rect()
+        self.rect.center = (int(self.x), int(self.y))
         self.screen.blit(self.image, self.rect)
 
 
@@ -77,8 +83,6 @@ class Camera(Sprite):
         :param rot: orientation of pivot(car)
         :return:
         """
-        self.rotation = rot
-        self.image = pygame.transform.rotate(self.orig_img, rot)
         self.rect = self.image.get_rect()
         x_off = self.settings.cam_settings['offset_x']
         y_off = self.settings.cam_settings['offset_y']

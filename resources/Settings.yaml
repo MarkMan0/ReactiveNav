@@ -7,4 +7,4 @@ car:
 camera:
   view_sz: 100
   offset_x: 0
-  offset_y: 30
+  offset_y: 0
