@@ -4,7 +4,12 @@ import yaml
 class Settings:
 
     def __init__(self, path_settings, path_scenario):
-
+        """
+        Given a path to settings.yaml and scenarion.yaml, reads the contents
+        of the files and stores the internally
+        :param path_settings: path to settings.yaml
+        :param path_scenario: path to scenario.yaml
+        """
         with open(path_settings) as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
         self.bg_color = data['bg_color']

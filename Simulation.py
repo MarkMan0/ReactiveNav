@@ -8,7 +8,13 @@ import math
 
 class Simulation:
 
-    def __init__(self, scenario, drawing=False):
+    def __init__(self, scenario: str, drawing: bool = False):
+        """
+        Creates a Simulation object. Doesn't initialize pygame
+        The creation of a window can be disabled to speed up simulation
+        :param scenario: path to scenario
+        :param drawing: if True a pygame window is created and the simulation is drawn on it
+        """
         self._drawing = drawing
         self.running = False
         self.window = None
@@ -24,18 +30,20 @@ class Simulation:
         self.result = False     # False - collision, True - goal
         self.camera = None
 
-    def setup(self):
+    def setup(self) -> None:
+        """Initializes pygame and creates a window if needed"""
         pygame.init()
         self.running = True
         if self._drawing:
             self.window = pygame.display.set_mode(size=self._size)
         self.display = pygame.Surface(self._size)
-        self.obstacles = Obstacle.ObstacleLoader(self, self._scenario).create_obstacles()
+        self.obstacles = Obstacle.ObstacleLoader(self._scenario).create_obstacles()
         self.car = Car.Car(self)
         self._create_walls()
         self.camera = Car.Camera(self)
 
-    def on_render(self):
+    def on_render(self) -> None:
+        """Updates all object witihin simulation and draws them"""
         self.obstacles.update()
         self.walls.update()
         self.car.update()
@@ -54,7 +62,8 @@ class Simulation:
             self.window.blit(self.display, rect)
             pygame.display.flip()
 
-    def on_event(self, event):
+    def on_event(self, event) -> None:
+        """Dispateches events"""
         if event.type == pygame.QUIT:
             self.running = False
         elif event.type == pygame.KEYDOWN:
@@ -64,10 +73,12 @@ class Simulation:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             self._handle_mouse_down(event)
 
-    def cleanup(self):
+    def cleanup(self) -> None:
+        """Stops pygame"""
         pygame.quit()
 
-    def tick(self):
+    def tick(self) -> None:
+        """Periodic calls, to progress the simulation"""
         for event in pygame.event.get():
             self.on_event(event)
         collision = self._check_collision()
@@ -81,15 +92,18 @@ class Simulation:
 
         self.on_render()
 
-    def _blit_start_goal(self):
+    def _blit_start_goal(self) -> None:
+        """Draws start and goal positions"""
         pygame.draw.circle(self.display, (0, 255, 0), self._start_pos, 20)
         pygame.draw.circle(self.display, (0, 0, 255), self._goal_pos, 20)
 
-    def _handle_mouse_down(self, event):
+    def _handle_mouse_down(self, event) -> None:
+        """Prints the position of a mouse click, used to help create scenarios"""
         x, y = event.pos
         print(f"[{x}, {y}]")
 
-    def _handle_keydown_events(self, event):
+    def _handle_keydown_events(self, event) -> None:
+        """Used to manually drive the car, along with _handle_keyup_events"""
         if event.key == pygame.K_RIGHT:
             self.car.ang_spd = -0.1
         elif event.key == pygame.K_LEFT:
@@ -97,14 +111,15 @@ class Simulation:
         elif event.key == pygame.K_q:
             self.running = False
 
-    def _handle_keyup_events(self, event):
+    def _handle_keyup_events(self, event) -> None:
+        """Used to manually drive the car, along with _handle_keydown_events"""
         if event.key == pygame.K_RIGHT:
             self.car.ang_spd = 0
         elif event.key == pygame.K_LEFT:
             self.car.ang_spd = 0
 
-    def _create_walls(self):
-
+    def _create_walls(self) -> None:
+        """Creates the walls for the simulation. The walls are positioned, so the camera is never off-screen"""
         off = max(self.settings.cam_settings['offset_y'], self.settings.cam_settings['offset_y'])
         off = math.sqrt(2 * off**2)
         space_x = self.settings.cam_settings['view_sz']/2 + off
@@ -117,18 +132,19 @@ class Simulation:
         y_min = space_y
         wall_w = 5
 
-        # walls vertical
-        self.walls.add(Wall.Wall(self, x_min, y_min, wall_w, h))            # left
-        self.walls.add(Wall.Wall(self, x_min, y_min, w, wall_w))            # top
-        self.walls.add(Wall.Wall(self, width-wall_w - space_x, y_min, wall_w, h))     # right
-        self.walls.add(Wall.Wall(self, x_min, height-wall_w-space_y, w, wall_w))     # bottom
+        self.walls.add(Wall.Wall((x_min, y_min), wall_w, h))            # left
+        self.walls.add(Wall.Wall((x_min, y_min), w, wall_w))            # top
+        self.walls.add(Wall.Wall((width-wall_w - space_x, y_min), wall_w, h))     # right
+        self.walls.add(Wall.Wall((x_min, height-wall_w-space_y), w, wall_w))     # bottom
 
-    def _check_collision(self):
+    def _check_collision(self) -> bool:
+        """Checks collision between car and obstacles and walls"""
         coll_wall = pygame.sprite.spritecollideany(self.car, self.walls) is not None
         coll_obs = pygame.sprite.spritecollideany(self.car, self.obstacles) is not None
         return coll_obs or coll_wall
 
-    def _check_goal(self):
+    def _check_goal(self) -> bool:
+        """checks if goal has been reached"""
         goal_x = self._goal_pos[0]
         goal_y = self._goal_pos[1]
         car_x = self.car.x

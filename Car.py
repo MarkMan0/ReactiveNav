@@ -1,16 +1,20 @@
 from pygame.sprite import Sprite
-
 import pygame
 import math
+import numpy
 
 
 class Car(Sprite):
 
-    def __init__(self, game):
-
+    def __init__(self, simulation):
+        """
+        Creates a car object, which is a circle
+        The car has a constant speed, it's direction can be altered using the ang_spd member variable
+        :param game: the Simulation object
+        """
         super().__init__()
-        self.screen = game.display
-        self.settings = game.settings
+        self.screen = simulation.display
+        self.settings = simulation.settings
         sz = self.settings.car_settings['size']
         self.image = pygame.Surface((sz, sz), pygame.SRCALPHA)
         pygame.draw.circle(self.image, (255, 0, 0), (int(sz/2), int(sz/2)), int(sz/2))
@@ -39,14 +43,18 @@ class Car(Sprite):
 
         self.rect.center = (int(self.x), int(self.y))
 
-    def render(self):
+    def render(self) -> None:
         self.screen.blit(self.image, self.rect)
 
 
 class Camera(Sprite):
 
     def __init__(self, game):
-
+        """
+        Camera used to watch a rectangle around a given point
+        The camera's size and offset from the pivot is defined in the .yaml file
+        :param game: Simulation object
+        """
         super().__init__()
         self.screen = game.display
         self.settings = game.settings
@@ -61,7 +69,14 @@ class Camera(Sprite):
         self.rect.center = self.settings.start_pos
         self.rotation = 0
 
-    def update_pos(self, x, y, rot):
+    def update_pos(self, x: float, y: float, rot: float) -> None:
+        """
+        Updates the position of the camera
+        :param x: x position of pivot(car)
+        :param y: y position of pivot(car)
+        :param rot: orientation of pivot(car)
+        :return:
+        """
         self.rotation = rot
         self.image = pygame.transform.rotate(self.orig_img, rot)
         self.rect = self.image.get_rect()
@@ -72,15 +87,18 @@ class Camera(Sprite):
 
         dx = r*math.cos(math.radians(-self.rotation-90))
         dy = r*math.sin(math.radians(self.rotation-90))
-        print(f"dx: {dx}, dy: {dy}")
         x += dx
         y += dy
-        self.rect.center = (x, y)
+        self.rect.center = (int(x), int(y))
 
-    def render(self):
+    def render(self) -> None:
         self.screen.blit(self.image, self.rect)
 
-    def get_cam_view(self):
+    def get_cam_view(self) -> numpy.array:
+        """
+        Returns a numpy array of the camera's view
+        :return: numpy.array
+        """
 
         arr = pygame.PixelArray(self.screen)
         x = self.rect.center[0]
