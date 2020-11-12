@@ -1,6 +1,6 @@
 # obstacle defined as: x, y, size
 obstacles:
-  - [30, 30, 50]
+  - [300, 150, 50]
   - [600, 800, 50]
 
 # path: start(x, y), goal(x, y)

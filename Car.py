@@ -10,7 +10,7 @@ class Car(Sprite):
         """
         Creates a car object, which is a circle
         The car has a constant speed, it's direction can be altered using the ang_spd member variable
-        :param game: the Simulation object
+        :param simulation: the Simulation object
         """
         super().__init__()
         self.screen = simulation.display
@@ -74,6 +74,7 @@ class Camera(Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = self.settings.start_pos
         self.rotation = 0
+        self.cam_view = None
 
     def update_pos(self, x: float, y: float, rot: float) -> None:
         """
@@ -83,6 +84,7 @@ class Camera(Sprite):
         :param rot: orientation of pivot(car)
         :return:
         """
+        self.rotation = rot
         self.rect = self.image.get_rect()
         x_off = self.settings.cam_settings['offset_x']
         y_off = self.settings.cam_settings['offset_y']
@@ -95,26 +97,40 @@ class Camera(Sprite):
         y += dy
         self.rect.center = (int(x), int(y))
 
-    def render(self) -> None:
-        self.screen.blit(self.image, self.rect)
+        self._update_cam()
 
-    def get_cam_view(self) -> numpy.array:
+    def _update_cam(self):
+        """Updates the camera's view"""
+        x, y = self.rect.center
+        cam_sz = self.view_sz / 2
+        x_min = int(x - cam_sz)
+        y_min = int(y - cam_sz)
+        x_max = int(x + cam_sz)
+        y_max = int(y + cam_sz)
+
+        # get pixels of camera view
+        arr = pygame.PixelArray(self.screen)
+        arr2 = arr[x_min:x_max, y_min:y_max]
+        arr.close()
+        # convert to surface
+        self.cam_view = arr2.make_surface()
+        arr2.close()
+        # rotate surface so car is always pointing in upward direction
+        self.cam_view.set_colorkey(pygame.Color(0))
+        self.cam_view = pygame.transform.rotate(self.cam_view, -self.rotation)
+
+    def render(self, window) -> None:
+        rect = self.cam_view.get_rect()
+        rect.topright = (self.settings.window_sz[0], 0)
+        self.screen.blit(self.image, self.rect)
+        window.blit(self.cam_view, rect)
+
+    def get_cam_arr(self) -> numpy.array:
         """
         Returns a numpy array of the camera's view
         :return: numpy.array
         """
-
-        arr = pygame.PixelArray(self.screen)
-        x = self.rect.center[0]
-        y = self.rect.center[1]
-        x_max, y_max = self.screen.get_size()
-        x = int(x + self.view_sz/2 * math.cos(math.radians(-self.rotation)))
-        y = int(y + self.view_sz/2 * math.sin(math.radians(-self.rotation)))
-
-        x = max(x, 0)
-        y = max(y, 0)
-        x = min(x, x_max)
-        y = min(y, y_max)
-
-        print(arr[x, y])
-        arr.close()
+        np_arr = pygame.surfarray.array2d(self.cam_view)
+        threshold = 16777210  # white
+        np_arr[np_arr < threshold] = 0  # ignore non-white pixels
+        return np_arr

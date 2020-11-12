@@ -13,7 +13,8 @@ class Settings:
         with open(path_settings) as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
         self.bg_color = data['bg_color']
-        self.screen_sz = data['screen_sz']
+        self.window_sz = data['window_sz']
+        self.map_sz = data['map_sz']
         self.car_settings = data['car']
         self.cam_settings = data['camera']
 

@@ -23,7 +23,8 @@ class Simulation:
         self.walls = pygame.sprite.Group()
         self._scenario = scenario
         self.settings = Settings("resources/Settings.yaml", self._scenario)
-        self._size = self.settings.screen_sz
+        self.window_sz = self.settings.window_sz
+        self.map_sz = self.settings.map_sz
         self._start_pos = self.settings.start_pos
         self._goal_pos = self.settings.goal_pos
         self.car = None
@@ -35,8 +36,8 @@ class Simulation:
         pygame.init()
         self.running = True
         if self._drawing:
-            self.window = pygame.display.set_mode(size=self._size)
-        self.display = pygame.Surface(self._size)
+            self.window = pygame.display.set_mode(size=self.window_sz)
+        self.display = pygame.Surface(self.map_sz)
         self.obstacles = Obstacle.ObstacleLoader(self._scenario).create_obstacles()
         self.car = Car.Car(self)
         self._create_walls()
@@ -54,9 +55,10 @@ class Simulation:
         self.walls.draw(self.display)
         self._blit_start_goal()
         self.car.render()
-        self.camera.render()
 
         if self._drawing:
+            self.window.fill((0, 0, 0))
+            self.camera.render(self.window)
             rect = self.display.get_rect()
             rect.topleft = (0, 0)
             self.window.blit(self.display, rect)
@@ -125,17 +127,15 @@ class Simulation:
         space_x = self.settings.cam_settings['view_sz']/2 + off
         space_y = self.settings.cam_settings['view_sz']/2 + off
 
-        width, height = self._size
-        w = width - 2*space_x
-        h = height - 2*space_y
+        w, h = self.map_sz
         x_min = space_x
         y_min = space_y
         wall_w = 5
 
         self.walls.add(Wall.Wall((x_min, y_min), wall_w, h))            # left
         self.walls.add(Wall.Wall((x_min, y_min), w, wall_w))            # top
-        self.walls.add(Wall.Wall((width-wall_w - space_x, y_min), wall_w, h))     # right
-        self.walls.add(Wall.Wall((x_min, height-wall_w-space_y), w, wall_w))     # bottom
+        self.walls.add(Wall.Wall((w-wall_w, y_min), wall_w, h))     # right
+        self.walls.add(Wall.Wall((x_min, h-wall_w), w, wall_w))     # bottom
 
     def _check_collision(self) -> bool:
         """Checks collision between car and obstacles and walls"""
