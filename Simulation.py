@@ -6,6 +6,14 @@ import Wall
 import math
 
 
+def _normalize_angle(angle: float) -> float:
+    angle = angle % 360
+    angle = (angle + 360) % 360
+    if angle > 180:
+        angle -= 360
+    return angle
+
+
 class Simulation:
 
     def __init__(self, scenario: str, drawing: bool = False):
@@ -113,6 +121,14 @@ class Simulation:
         elif event.key == pygame.K_q:
             self.running = False
 
+    def set_car_ang_spd(self, spd: float):
+        """Sets the car's angular speed, spd is clamped to +-1"""
+        if spd < -1:
+            spd = -1
+        elif spd > 1:
+            spd = 1
+        self.car.ang_spd = spd
+
     def _handle_keyup_events(self, event) -> None:
         """Used to manually drive the car, along with _handle_keydown_events"""
         if event.key == pygame.K_RIGHT:
@@ -142,11 +158,33 @@ class Simulation:
 
     def _check_goal(self) -> bool:
         """checks if goal has been reached"""
+        return self.get_dist_to_goal() < 20
+
+    def get_dist_to_goal(self) -> float:
         goal_x = self._goal_pos[0]
         goal_y = self._goal_pos[1]
         car_x = self.car.x
         car_y = self.car.y
 
-        dist_to_goal = math.sqrt(math.pow(goal_x-car_x, 2) + math.pow(goal_y-car_y, 2))
+        return math.sqrt((goal_x - car_x)**2 + (goal_y - car_y)**2)
 
-        return dist_to_goal < 20
+    def get_direction_to_target(self) -> float:
+        """Returns the relative angle between current car direction and goal"""
+        curr_x = self.car.x
+        curr_y = self.car.y
+        goal_x = self._goal_pos[0]
+        goal_y = self._goal_pos[1]
+
+        dx = goal_x - curr_x
+        dy = goal_y - curr_y
+        car_ang = self.car.orientation + 90
+        car_ang = _normalize_angle(car_ang)
+
+        rads = math.atan2(dy, -dx)
+        rads %= 2 * math.pi
+        ang_to_goal = _normalize_angle(math.degrees(rads))
+
+        diff = ang_to_goal - car_ang + 180
+        diff = _normalize_angle(diff)
+
+        return diff
