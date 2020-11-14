@@ -21,6 +21,6 @@ class Settings:
         self.map_sz = data['map_sz']
 
         if self.window_sz[0] < (self.map_sz[0] + 1.5*self.cam_settings['view_sz']):
-            raise ValueError("width of window shouldn't be less than map_sz[1] + 1.5*camera.view_sz")
+            raise ValueError("width of window shouldn't be less than map_sz[0] + 1.5*camera.view_sz")
         if self.window_sz[1] < (self.map_sz[1] + 0.5*self.cam_settings['view_sz']):
             raise ValueError("height of window shouldn't be less than map_sz[1] + 0.5*camera.view_sz")
