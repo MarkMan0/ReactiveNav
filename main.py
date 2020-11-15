@@ -64,7 +64,23 @@ def eval_genome(genome, config) -> float:
     if reached:
         fit += 2000 - 20*dist - 10*min_dist - cnt
     else:
-        fit = -20*dist - 10*min_dist + cnt
+        fit += -20*dist - 10*min_dist + cnt
+
+    cnt, timeout, reached, dist, min_dist = do_sim("resources/Scenario_2.yaml", net, False)
+    if timeout:
+        fit -= 100000
+    if reached:
+        fit += 2000 - 20*dist - 10*min_dist - cnt
+    else:
+        fit += -20*dist - 10*min_dist + cnt
+
+    cnt, timeout, reached, dist, min_dist = do_sim("resources/Scenario_3.yaml", net, False)
+    if timeout:
+        fit -= 100000
+    if reached:
+        fit += 2000 - 20 * dist - 10 * min_dist - cnt
+    else:
+        fit += -20 * dist - 10 * min_dist + cnt
     print(fit)
     return fit
 
@@ -105,7 +121,8 @@ def evolve_net():
     input("Press Enter to continue...")
     input("Press Enter to continue...")
     do_sim("resources/Scenario_1.yaml", winner_net, True)
-
+    do_sim("resources/Scenario_2.yaml", winner_net, True)
+    do_sim("resources/Scenario_3.yaml", winner_net, True)
     visualize.plot_stats(stats, ylog=False, view=True)
     visualize.plot_species(stats, view=True)
 
@@ -132,6 +149,10 @@ def from_file():
     winner, pop = pickle.load(open("save.p", "rb"))
     net = neat.nn.FeedForwardNetwork.create(winner, config)
     do_sim("resources/Scenario_1.yaml", net, True)
+    do_sim("resources/Scenario_2.yaml", net, True)
+    do_sim("resources/Scenario_3.yaml", net, True)
+    visualize.draw_net(config, winner, view=True)
+    print('\nBest genome:\n{!s}'.format(winner))
 
 
 if __name__ == '__main__':

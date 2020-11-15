@@ -110,7 +110,7 @@ class Simulation:
     def _handle_mouse_down(self, event) -> None:
         """Prints the position of a mouse click, used to help create scenarios"""
         x, y = event.pos
-        print(f"[{x}, {y}]")
+        print(f"- [{x}, {y}, 100]")
 
     def _handle_keydown_events(self, event) -> None:
         """Used to manually drive the car, along with _handle_keyup_events"""
