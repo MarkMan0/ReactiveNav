@@ -2,22 +2,15 @@ window_sz: [1800, 1000]
 map_sz: [1300, 800]
 car:
   size: 15
-  speed: 1
+  speed: 0.01
 camera:
   view_sz: 300  # camera reads view_sz x view_sz pixels
   scaled_sz: 50   # input is reduced to this many pixels for easier processing
   discard_ratio: 0.33   # equivalent size of the image is discarded from behind the car(bottom part)
 
 # obstacle defined as: x, y, size
-obstacles:
-  - [ 840, 590, 100 ]
-  - [ 609, 423, 100 ]
-  - [ 806, 407, 100 ]
-  - [ 299, 255, 100 ]
-  - [ 435, 518, 100 ]
-  - [ 1098, 332, 100 ]
-  - [ 1233, 533, 100 ]
+obstacles: []
 # path: start(x, y), goal(x, y)
 path:
-  start: [982, 681]
-  goal: [269, 657]
+  start: [716, 643]
+  goal: [904, 320]

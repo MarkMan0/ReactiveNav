@@ -25,12 +25,13 @@ def check_camera(image: np.array) -> tuple:
             if np.any(image[x_div[j-1]:x_div[j], y_div[i-1]:y_div[i]] > 1000):
                 ret += (1,)
             else:
-                ret += (0,)
+                ret += (-1,)
     return ret
 
 
-def do_sim(path: str, net: neat.nn.FeedForwardNetwork, draw: bool = False) -> tuple:
+def do_sim(path: str, genome: neat.genome, config: neat.config, draw: bool = False) -> float:
     """Simulates a given scenario"""
+    net = neat.nn.FeedForwardNetwork.create(genome, config)
     sim = Simulation(path, drawing=draw)
     sim.setup()
     cnt = 0
@@ -48,39 +49,24 @@ def do_sim(path: str, net: neat.nn.FeedForwardNetwork, draw: bool = False) -> tu
         cnt += 1
         sim.tick()
     sim.cleanup()
-    timeout = False
+    dist = sim.get_dist_to_goal()
+    fit = 0
     if cnt >= cnt_th:
-        timeout = True
-    return cnt, timeout, sim.result, sim.get_dist_to_goal(), min_dist
-
+        fit -= 100000
+    if sim.result:
+        fit += 2000 - 20*dist - 10*min_dist - cnt
+    else:
+        fit += -20*dist - 10*min_dist + cnt
+    return fit
 
 def eval_genome(genome, config) -> float:
     """Fitness function for 1 genome"""
-    net = neat.nn.FeedForwardNetwork.create(genome, config)
-    cnt, timeout, reached, dist, min_dist = do_sim("resources/Scenario_1.yaml", net, False)
     fit = 0
-    if timeout:
-        fit -= 100000
-    if reached:
-        fit += 2000 - 20*dist - 10*min_dist - cnt
-    else:
-        fit += -20*dist - 10*min_dist + cnt
-
-    cnt, timeout, reached, dist, min_dist = do_sim("resources/Scenario_2.yaml", net, False)
-    if timeout:
-        fit -= 100000
-    if reached:
-        fit += 2000 - 20*dist - 10*min_dist - cnt
-    else:
-        fit += -20*dist - 10*min_dist + cnt
-
-    cnt, timeout, reached, dist, min_dist = do_sim("resources/Scenario_3.yaml", net, False)
-    if timeout:
-        fit -= 100000
-    if reached:
-        fit += 2000 - 20 * dist - 10 * min_dist - cnt
-    else:
-        fit += -20 * dist - 10 * min_dist + cnt
+    fit += do_sim("resources/Scenario_1.yaml", genome, config, False)
+    fit += do_sim("resources/Scenario_2.yaml", genome, config, False)
+    fit += do_sim("resources/Scenario_3.yaml", genome, config, False)
+    fit += do_sim("resources/Scenario_4.yaml", genome, config, False)
+    fit += do_sim("resources/Scenario_5.yaml", genome, config, False)
     print(fit)
     return fit
 
@@ -106,8 +92,8 @@ def evolve_net():
     p.add_reporter(neat.Checkpointer(5, filename_prefix='checkpoints/checkpoint_'))
 
     # Run for up to 300 generations.
-    pe = neat.ParallelEvaluator(12, eval_genome)
-    winner = p.run(pe.evaluate, 10)
+    pe = neat.ParallelEvaluator(10, eval_genome)
+    winner = p.run(pe.evaluate, 20)
     save_tup = (winner, p)
     pickle.dump(save_tup, open("save.p", "wb"))
 
@@ -116,19 +102,20 @@ def evolve_net():
 
     # Show output of the most fit genome against training data.
     print('\nOutput:')
-    winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
     input("Press Enter to continue...")
     input("Press Enter to continue...")
     input("Press Enter to continue...")
-    do_sim("resources/Scenario_1.yaml", winner_net, True)
-    do_sim("resources/Scenario_2.yaml", winner_net, True)
-    do_sim("resources/Scenario_3.yaml", winner_net, True)
+    do_sim("resources/Scenario_1.yaml", winner, config, True)
+    do_sim("resources/Scenario_2.yaml", winner, config, True)
+    do_sim("resources/Scenario_3.yaml", winner, config, True)
+    do_sim("resources/Scenario_4.yaml", winner, config, True)
+    do_sim("resources/Scenario_5.yaml", winner, config, True)
     visualize.plot_stats(stats, ylog=False, view=True)
     visualize.plot_species(stats, view=True)
 
 
-def main():
-    sim = Simulation("resources/Scenario_1.yaml", drawing=True)
+def main(scenario: str):
+    sim = Simulation(scenario, drawing=True)
     sim.setup()
     cnt = 0
     sim.tick()
@@ -147,16 +134,35 @@ def from_file():
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          "resources/net_config.ini")
     winner, pop = pickle.load(open("save.p", "rb"))
-    net = neat.nn.FeedForwardNetwork.create(winner, config)
-    do_sim("resources/Scenario_1.yaml", net, True)
-    do_sim("resources/Scenario_2.yaml", net, True)
-    do_sim("resources/Scenario_3.yaml", net, True)
+    do_sim("resources/Scenario_1.yaml", winner, config, True)
+    do_sim("resources/Scenario_2.yaml", winner, config, True)
+    do_sim("resources/Scenario_3.yaml", winner, config, True)
+    do_sim("resources/Scenario_4.yaml", winner, config, True)
+    do_sim("resources/Scenario_5.yaml", winner, config, True)
     visualize.draw_net(config, winner, view=True)
     print('\nBest genome:\n{!s}'.format(winner))
 
 
+def test_scenario():
+    config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                         neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                         "resources/net_config.ini")
+    winner, pop = pickle.load(open("save.p", "rb"))
+    do_sim("resources/Scenario_test_1.yaml", winner, config, True)
+    visualize.draw_net(config, winner, view=True)
+    print('\nBest genome:\n{!s}'.format(winner))
+
+
+def create_map():
+    sim = Simulation("resources/Scenario_construct.yaml", drawing=True)
+    sim.setup()
+    while sim.running:
+        sim.tick()
+    sim.cleanup()
+
+
 if __name__ == '__main__':
     start = time.perf_counter()
-    evolve_net()
+    test_scenario()
     end = time.perf_counter()
     print(f"Took: {end-start}")
