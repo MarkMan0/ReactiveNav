@@ -6,7 +6,7 @@ import yaml
 
 class Obstacle(Sprite):
 
-    def __init__(self, x: int = -1, y: int = -1, sz: int = 100):
+    def __init__(self, x: int = -1, y: int = -1, sz: tuple = (100, 100)):
         """
         Obstacle is a white rectangle, with position and size
         :param x: if -1, x position is random
@@ -14,8 +14,8 @@ class Obstacle(Sprite):
         :param sz: size of obstacle
         """
         super().__init__()
-        self.image = pygame.Surface((sz, sz), pygame.SRCALPHA)
-        pygame.draw.rect(self.image, (255, 255, 255), pygame.Rect(0, 0, sz, sz))
+        self.image = pygame.Surface(sz, pygame.SRCALPHA)
+        pygame.draw.rect(self.image, (255, 255, 255), pygame.Rect(0, 0, sz[0], sz[1]))
         self.rect = self.image.get_rect()
 
         if x != -1 and y != -1:
@@ -43,6 +43,6 @@ class ObstacleLoader:
         """Creates obstacle objects"""
         obstacles = pygame.sprite.Group()
         for pos in self.positions:
-            obstacles.add(Obstacle(pos[0], pos[1], pos[2]))
+            obstacles.add(Obstacle(pos[0], pos[1], (pos[2], pos[3])))
 
         return obstacles

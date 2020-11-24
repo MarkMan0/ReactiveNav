@@ -17,11 +17,12 @@ def check_camera(image: np.array) -> tuple:
     |   7   |   8   |   9   |
     _________________________
     """
-    x_div = (0, int(sz_x*1/3), int(sz_x*2/3), sz_x)
-    y_div = (0, int(sz_y*1/3), int(sz_y*2/3), sz_y)
+    n = 5
+    x_div = tuple([int(sz_x*i/n) for i in range(0, n+1)])
+    y_div = tuple([int(sz_y*i/n) for i in range(0, n+1)])
     ret = ()
-    for i in range(1, 4):
-        for j in range(1, 4):
+    for i in range(1, n+1):
+        for j in range(1, n+1):
             if np.any(image[x_div[j-1]:x_div[j], y_div[i-1]:y_div[i]] > 1000):
                 ret += (1,)
             else:
@@ -52,12 +53,13 @@ def do_sim(path: str, genome: neat.genome, config: neat.config, draw: bool = Fal
     dist = sim.get_dist_to_goal()
     fit = 0
     if cnt >= cnt_th:
-        fit -= 100000
+        fit -= 1000000
     if sim.result:
         fit += 2000 - 20*dist - 10*min_dist - cnt
     else:
         fit += -20*dist - 10*min_dist + cnt
     return fit
+
 
 def eval_genome(genome, config) -> float:
     """Fitness function for 1 genome"""
@@ -67,6 +69,7 @@ def eval_genome(genome, config) -> float:
     fit += do_sim("resources/Scenario_3.yaml", genome, config, False)
     fit += do_sim("resources/Scenario_4.yaml", genome, config, False)
     fit += do_sim("resources/Scenario_5.yaml", genome, config, False)
+    fit += do_sim("resources/Scenario_6.yaml", genome, config, False)
     print(fit)
     return fit
 
@@ -93,7 +96,7 @@ def evolve_net():
 
     # Run for up to 300 generations.
     pe = neat.ParallelEvaluator(10, eval_genome)
-    winner = p.run(pe.evaluate, 20)
+    winner = p.run(pe.evaluate, n=None)
     save_tup = (winner, p)
     pickle.dump(save_tup, open("save.p", "wb"))
 

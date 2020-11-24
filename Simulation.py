@@ -111,8 +111,8 @@ class Simulation:
         """Prints the position of a mouse click, used to help create scenarios"""
         x, y = event.pos
         if event.button == 1:
-            self.obstacles.add(Obstacle.Obstacle(x, y, 100))
-            print(f"- [{x}, {y}, 100]")
+            self.obstacles.add(Obstacle.Obstacle(x, y, (10, 10)))
+            print(f"- [{x}, {y}, 10, 10]")
         elif event.button == 3:
             print(f"- [{x}, {y}]")
 
